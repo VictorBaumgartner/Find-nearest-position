@@ -81,7 +81,9 @@ This endpoint does not require any parameters in the request body or URL. When a
 3. Calculate distances and find the nearest 10\.  
 4. Return a JSON array of the top 10 nearest geopoints, including their calculated distance in kilometers.
 
+
 Example Response:  
+<pre lang="markdown"> ```json
 \[  
   {  
     "geopoint": {"id": 1, "name": "Nearest Location", "latitude": ... , "longitude": ...},  
@@ -92,7 +94,11 @@ Example Response:
     "distance\_km": 1.2  
   }  
   // ... up to 10 results  
-\]
+\]  ``` </pre>
+
+![Diagram](images/Capture d'écran 2025-05-15 121848.png)
+
+![Diagram](images/Capture d'écran 2025-05-15 121902)
 
 You can access this endpoint using a web browser (for a simple GET request) or tools like curl, Postman, or by writing a client script.  
 Example using curl:  
