@@ -85,15 +85,16 @@ This endpoint does not require any parameters in the request body or URL. When a
 Example Response:  
 <pre lang="markdown"> ```json [  
   {  
-    "geopoint": {"id": 1, "name": "Nearest Location", "latitude": ... , "longitude": ...},  
+    "geopoint": {"id": 1, "name": "Nearest Location", "latitude": "..." , "longitude": "..."},  
     "distance km": 0.5  
   },  
   {  
-    "geopoint": {"id": 5, "name": "Second Nearest", "latitude": ... , "longitude": ...},  
+    "geopoint": {"id": 5, "name": "Second Nearest", "latitude": "..." , "longitude": "..."},  
     "distance km": 1.2  
   }  
-  // ... up to 10 results  
 ]  ``` </pre>
+  // ... up to 10 results  
+
 
 ![Cap 1](images/cap1.png)
 
