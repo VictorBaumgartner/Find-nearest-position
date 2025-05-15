@@ -83,7 +83,7 @@ This endpoint does not require any parameters in the request body or URL. When a
 
 
 Example Response:  
-<pre lang="markdown"> [  
+```json [  
   {  
     "geopoint": {"id": 1, "name": "Nearest Location", "latitude": ... , "longitude": ...},  
     "distance\_km": 0.5  
@@ -93,11 +93,11 @@ Example Response:
     "distance\_km": 1.2  
   }  
   // ... up to 10 results  
-\]  </pre>
+\]  ```
 
-![Diagram](images/cap1.png)
+![Alt Text](images/cap1.png)
 
-![Diagram](images/cap2.png)
+![Alt Text](images/cap2.png)
 
 You can access this endpoint using a web browser (for a simple GET request) or tools like curl, Postman, or by writing a client script.  
 Example using curl:  
