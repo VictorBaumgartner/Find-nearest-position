@@ -1,0 +1,17 @@
+[
+  {"id": 1, "name": "Eiffel Tower", "latitude": 48.8584, "longitude": 2.2945},
+  {"id": 2, "name": "Louvre Museum", "latitude": 48.8606, "longitude": 2.3376},
+  {"id": 3, "name": "Notre-Dame Cathedral", "latitude": 48.8530, "longitude": 2.3499},
+  {"id": 4, "name": "Sacré-Cœur Basilica", "latitude": 48.8867, "longitude": 2.3431},
+  {"id": 5, "name": "Arc de Triomphe", "latitude": 48.8738, "longitude": 2.2950},
+  {"id": 6, "name": "Palace of Versailles", "latitude": 48.8048, "longitude": 2.1204},
+  {"id": 7, "name": "Disneyland Paris", "latitude": 48.8760, "longitude": 2.7848},
+  {"id": 8, "name": "Musée d'Orsay", "latitude": 48.8599, "longitude": 2.3265},
+  {"id": 9, "name": "Centre Pompidou", "latitude": 48.8609, "longitude": 2.3524},
+  {"id": 10, "name": "Luxembourg Gardens", "latitude": 48.8467, "longitude": 2.3371},
+  {"id": 11, "name": "Père Lachaise Cemetery", "latitude": 48.8608, "longitude": 2.3935},
+  {"id": 12, "name": "Moulin Rouge", "latitude": 48.8842, "longitude": 2.3319},
+  {"id": 13, "name": "Place de la Concorde", "latitude": 48.8656, "longitude": 2.3212},
+  {"id": 14, "name": "Pont Neuf", "latitude": 48.8578, "longitude": 2.3406},
+  {"id": 15, "name": "Canal Saint-Martin", "latitude": 48.8763, "longitude": 2.3622}
+]
