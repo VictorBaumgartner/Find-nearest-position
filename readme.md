@@ -83,7 +83,7 @@ This endpoint does not require any parameters in the request body or URL. When a
 
 
 Example Response:  
-<pre> ```json [  
+<pre lang="markdown"> ```json [  
   {  
     "geopoint": {"id": 1, "name": "Nearest Location", "latitude": ... , "longitude": ...},  
     "distance km": 0.5  
