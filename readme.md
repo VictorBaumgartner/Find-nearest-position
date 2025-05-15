@@ -83,17 +83,17 @@ This endpoint does not require any parameters in the request body or URL. When a
 
 
 Example Response:  
-```json [  
+<pre> ```json [  
   {  
     "geopoint": {"id": 1, "name": "Nearest Location", "latitude": ... , "longitude": ...},  
-    "distance\_km": 0.5  
+    "distance km": 0.5  
   },  
   {  
     "geopoint": {"id": 5, "name": "Second Nearest", "latitude": ... , "longitude": ...},  
-    "distance\_km": 1.2  
+    "distance km": 1.2  
   }  
   // ... up to 10 results  
-\]  ```
+\]  ``` </pre>
 
 ![Alt Text](images/cap1.png)
 
