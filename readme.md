@@ -93,11 +93,11 @@ Example Response:
     "distance km": 1.2  
   }  
   // ... up to 10 results  
-\]  ``` </pre>
+]  ``` </pre>
 
-![Alt Text](images/cap1.png)
+![Cap 1](images/cap1.png)
 
-![Alt Text](images/cap2.png)
+![Cap 2](images/cap2.png)
 
 You can access this endpoint using a web browser (for a simple GET request) or tools like curl, Postman, or by writing a client script.  
 Example using curl:  
