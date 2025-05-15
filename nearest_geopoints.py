@@ -2,21 +2,31 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import json
 import math
-import os # Import os for file path handling
+import os
 from typing import List, Dict, Any
-
-# Initialize FastAPI app
-app = FastAPI()
+from contextlib import asynccontextmanager # Import asynccontextmanager
 
 # Define the filenames for input JSON data
 GEODATA_FILE = "geopoints.json"
-USER_LOCATION_FILE = "user_location.json" # Assuming a fixed filename for user location
+USER_LOCATION_FILE = "user_location.json"
 
 # Variable to store loaded geopoints
 geopoints: List[Dict[str, Any]] = []
 
 # Haversine formula to calculate distance between two lat/lon points in kilometers
 def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """
+    Calculates the distance between two geographic points using the Haversine formula.
+
+    Args:
+        lat1: Latitude of the first point.
+        lon1: Longitude of the first point.
+        lat2: Latitude of the second point.
+        lon2: Longitude of the second point.
+
+    Returns:
+        The distance between the two points in kilometers.
+    """
     R = 6371  # Radius of Earth in kilometers
 
     lat1_rad = math.radians(lat1)
@@ -35,30 +45,55 @@ def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> fl
 
 # Function to load geopoints from the JSON file
 def load_geopoints(filename: str):
-    """Loads geopoints from a JSON file."""
+    """
+    Loads geopoints from a JSON file.
+
+    Args:
+        filename: The path to the JSON file.
+
+    Returns:
+        A list of dictionaries representing the geopoints, or an empty list if loading fails.
+    """
     if not os.path.exists(filename):
-        raise FileNotFoundError(f"Geopoints file not found: {filename}")
+        # In a real app, you might want to log this error properly
+        print(f"Error: Geopoints file not found: {filename}")
+        return [] # Return empty list if file not found
     try:
         with open(filename, 'r') as f:
             data = json.load(f)
             if not isinstance(data, list):
-                raise ValueError("Geopoints file must contain a list of locations.")
+                print(f"Error: Geopoints file must contain a list of locations. File: {filename}")
+                return []
             # Basic validation for each location entry
+            validated_data = []
             for item in data:
+                # Check for required keys and correct types
                 if not all(k in item for k in ("id", "name", "latitude", "longitude")):
-                     raise ValueError(f"Invalid format in geopoints file. Each item must have 'id', 'name', 'latitude', 'longitude'. Problem item: {item}")
+                     print(f"Warning: Skipping invalid item (missing keys) in geopoints file: {item}")
+                     continue # Skip invalid items instead of raising error
                 if not isinstance(item['latitude'], (int, float)) or not isinstance(item['longitude'], (int, float)):
-                     raise ValueError(f"Invalid latitude or longitude type in geopoints file. Problem item: {item}")
-
-            return data
+                     print(f"Warning: Skipping item with invalid lat/lon types: {item}")
+                     continue # Skip invalid items
+                validated_data.append(item)
+            return validated_data
     except json.JSONDecodeError:
-        raise ValueError(f"Error decoding JSON from geopoints file: {filename}")
+        print(f"Error decoding JSON from geopoints file: {filename}")
+        return []
     except Exception as e:
-        raise RuntimeError(f"An error occurred while loading geopoints: {e}")
+        print(f"An unexpected error occurred while loading geopoints: {e}")
+        return []
 
 # Function to load user location from the JSON file
 def load_user_location(filename: str):
-    """Loads user location from a JSON file."""
+    """
+    Loads user location from a JSON file.
+
+    Args:
+        filename: The path to the JSON file.
+
+    Returns:
+        A dictionary containing the user's latitude and longitude.
+    """
     if not os.path.exists(filename):
         raise FileNotFoundError(f"User location file not found: {filename}")
     try:
@@ -76,20 +111,30 @@ def load_user_location(filename: str):
     except Exception as e:
         raise RuntimeError(f"An error occurred while loading user location: {e}")
 
-
-# Load geopoints when the application starts
-@app.on_event("startup")
-async def startup_event():
-    """Loads geopoints from the file when the app starts."""
+# Lifespan event handler for startup and shutdown
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Handles startup and shutdown events for the application.
+    Loads geopoints when the application starts.
+    """
+    # Startup: Load geopoints
     global geopoints
-    try:
-        geopoints = load_geopoints(GEODATA_FILE)
-        print(f"Successfully loaded {len(geopoints)} geopoints from {GEODATA_FILE}")
-    except (FileNotFoundError, ValueError, RuntimeError) as e:
-        print(f"Error during startup: {e}")
-        # Depending on your needs, you might want to exit or handle this differently
-        # For now, we'll just print the error and continue with an empty geopoints list
-        geopoints = []
+    print(f"Attempting to load geopoints from {GEODATA_FILE}...")
+    geopoints = load_geopoints(GEODATA_FILE)
+    if geopoints:
+        print(f"Successfully loaded {len(geopoints)} geopoints.")
+    else:
+        print("No geopoints loaded. Check file or format.")
+
+    yield # Application runs here (handles incoming requests)
+
+    # Shutdown: (Optional) Add cleanup code here if needed
+    # For example, closing database connections, releasing resources, etc.
+    print("Application shutting down.")
+
+# Initialize FastAPI app with lifespan
+app = FastAPI(lifespan=lifespan)
 
 
 # API endpoint to find the nearest geopoints based on user location from file
@@ -103,17 +148,21 @@ async def find_nearest_geopoints_from_file():
         List[Dict[str, Any]]: A list of the top 10 nearest geopoints,
                                sorted by distance, including their distance.
     """
+    # Check if geopoints were loaded successfully during startup
     if not geopoints:
-        raise HTTPException(status_code=500, detail="Geopoints data not loaded. Check geopoints.json.")
+        raise HTTPException(status_code=500, detail="Geopoints data not loaded. Check geopoints.json and server logs.")
 
     try:
+        # Load the user's location from the file for each request
         user_location_data = load_user_location(USER_LOCATION_FILE)
         user_latitude = user_location_data["latitude"]
         user_longitude = user_location_data["longitude"]
     except (FileNotFoundError, ValueError, RuntimeError) as e:
-        raise HTTPException(status_code=500, detail=f"Error loading user location: {e}")
+        # Raise an HTTP exception if there's an issue loading the user location file
+        raise HTTPException(status_code=500, detail=f"Error loading user location from {USER_LOCATION_FILE}: {e}")
 
     distances = []
+    # Calculate distance for each loaded geopoint
     for geopoint in geopoints:
         distance = haversine_distance(
             user_latitude, user_longitude,
@@ -121,18 +170,15 @@ async def find_nearest_geopoints_from_file():
         )
         distances.append({"geopoint": geopoint, "distance_km": round(distance, 2)})
 
-    # Sort by distance
+    # Sort the list of distances by the distance value
     distances.sort(key=lambda x: x["distance_km"])
 
-    # Return the top 10
+    # Return the top 10 nearest locations
     return distances[:10]
 
-# To run this application:
-# 1. Save the code as a Python file (e.g., main.py).
-# 2. Create the 'geopoints.json' and 'user_location.json' files in the same directory.
-# 3. Make sure you have FastAPI and uvicorn installed:
-#    pip install fastapi uvicorn pydantic
-# 4. Run the application using uvicorn:
-#    uvicorn main:app --reload
-# 5. Access the endpoint by making a GET request to http://127.0.0.1:8000/nearest_geopoints_from_file/
-#    The API will read the data from the JSON files and return the result.
+# Instructions to run:
+# 1. Save this code as a Python file (e.g., main.py).
+# 2. Create 'geopoints.json' and 'user_location.json' files in the same directory.
+# 3. Install dependencies: pip install fastapi uvicorn pydantic
+# 4. Run: uvicorn main:app --reload
+# 5. Access the API at http://127.0.0.1:8000/nearest_geopoints_from_file/
