@@ -197,7 +197,7 @@ async def find_nearest_stations(
     
     # Sort by distance and return top 10
     distances.sort(key=lambda x: x["distance_km"])
-    nearest_stations = distances[:10]
+    nearest_stations = distances[:1]
     
     if not nearest_stations: # Should not happen if filtered_stations was not empty, but as a safeguard
         return NearestStationsResponse(stations=[])
